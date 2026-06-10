@@ -1226,8 +1226,15 @@ function hideLoginScreen() {
   if (sb) sb.style.display = 'flex';
 }
 
+function renderAll() {
+  renderTodo();
+  renderCRM();
+  renderOrders();
+  if (typeof renderSato === 'function') { renderSato(); renderJewel(); }
+}
+
 setLang('en');
-initApp();
+window.addEventListener('load', function(){ initApp(); });
 </script>
 </body>
 </html>
