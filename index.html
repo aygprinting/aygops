@@ -40,22 +40,22 @@ button{cursor:pointer}
 .page{display:none;height:calc(100vh - 52px);overflow:hidden}
 .page.on{display:flex}
 .main{flex:1;overflow-y:auto;padding:14px 16px}
-.sidebar{width:285px;flex-shrink:0;border-left:1px solid var(--b);display:flex;flex-direction:column;background:var(--sur)}
-.ch{padding:9px 11px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
-.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);animation:blink 2s infinite}
-.msgs{flex:1;overflow-y:auto;padding:9px 11px;display:flex;flex-direction:column;gap:7px}
-.msg{font-size:12px;line-height:1.6;padding:6px 9px;border-radius:9px;max-width:100%}
-.msg-u{align-self:flex-end;background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.2);border-radius:9px 9px 2px 9px}
-.msg-a{align-self:flex-start;background:var(--s2);border:1px solid var(--b);border-radius:9px 9px 9px 2px}
-.msg-th{color:var(--m);font-style:italic}
-.cf{padding:9px 11px;border-top:1px solid var(--b)}
-.sugs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
-.sug{font-size:10px;padding:3px 7px;border-radius:12px;border:1px solid var(--b2);background:transparent;color:var(--m);cursor:pointer;transition:all .12s;text-align:left}
-.sug:hover{color:var(--t);border-color:var(--grn)}
-.cr{display:flex;gap:5px}
-.ci{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:6px 8px;color:var(--t);font-size:12px;outline:none;resize:none;min-height:32px;max-height:65px}
-.ci:focus{border-color:var(--b2)}
-.csend{background:var(--grn);border:none;border-radius:var(--r);padding:6px 10px;color:#0c0c0e;font-size:13px;font-weight:600;flex-shrink:0}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-bottom:12px}
 .sc{background:var(--sur);border:1px solid var(--b);border-radius:var(--r);padding:10px 12px}
 .sc.clk{cursor:pointer;transition:all .15s}
@@ -172,9 +172,9 @@ button{cursor:pointer}
 .q-divider{border-top:1px solid var(--b2);margin:6px 0 4px}
 .q-section-hd{font-size:10px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
 
-.sidebar{transition:width .3s ease,opacity .3s ease;position:relative}
-.sidebar.collapsed{width:0!important;min-width:0!important;overflow:hidden!important;border:none!important;padding:0!important;opacity:0}
-.sb-tab{position:absolute;left:-20px;top:50%;transform:translateY(-50%);width:20px;height:48px;background:var(--s3);border:1px solid var(--b2);border-right:none;border-radius:6px 0 0 6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:12px;z-index:20;transition:all .15s}
+
+
+
 .sb-tab:hover{color:var(--t);background:var(--s2)}
 
 #login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
@@ -215,8 +215,7 @@ button{cursor:pointer}
     <button class="tab" onclick="goTab('orders',this)"><div class="dot" style="background:var(--tel)"></div><span data-tx="ordersTab">Orders</span></button>
     <button class="tab" onclick="goTab('quotes',this)"><div class="dot" style="background:var(--pur)"></div><span data-tx="quotesTab">Quotes &amp; Pricing</span></button>
     <button class="tab" onclick="goTab('competitors',this)"><div class="dot" style="background:var(--pnk)"></div><span data-tx="competitorsTab">Competitors</span></button>
-    <button class="tab" onclick="goTab('faq',this)"><div class="dot" style="background:var(--grn)"></div><span data-tx="faqTab">FAQ</span></button>
-  </div>
+    </div>
   <div class="nav-right">
     <div class="fs-bar">
       <span data-tx="textSize">Text</span>
@@ -256,12 +255,7 @@ button{cursor:pointer}
       </div>
     </div>
   </div>
-  <div class="sidebar">
-    <div class="ch"><div class="ai-dot"></div><span data-tx="askClaude">Gemini Chat</span></div>
-    <div class="msgs" id="msgs-todo"></div>
-    <div class="cf"><div class="cr"><textarea class="ci" id="inp-todo" rows="1" onkeydown="onKey(event,'todo')"></textarea><button class="csend" onclick="send('todo')">&#8593;</button></div></div>
   </div>
-</div>
 
 <!-- CRM -->
 <div id="page-crm" class="page">
@@ -270,12 +264,7 @@ button{cursor:pointer}
     <div class="sh"><div class="stitle" data-tx="clientPipeline">Client Pipeline</div><div class="acts"><input class="ipt" id="crm-q" placeholder="Search..." oninput="renderCRM()"></div></div>
     <div class="board" id="crm-board"></div>
   </div>
-  <div class="sidebar">
-    <div class="ch"><div class="ai-dot"></div><span data-tx="askClaude">Gemini Chat</span></div>
-    <div class="msgs" id="msgs-crm"></div>
-    <div class="cf"><div class="cr"><textarea class="ci" id="inp-crm" rows="1" onkeydown="onKey(event,'crm')"></textarea><button class="csend" onclick="send('crm')">&#8593;</button></div></div>
   </div>
-</div>
 
 <!-- ORDERS -->
 <div id="page-orders" class="page">
@@ -284,12 +273,7 @@ button{cursor:pointer}
     <div class="sh"><div class="stitle" data-tx="ordersPipeline">Orders Pipeline</div><div class="acts"><input class="ipt" id="ord-q" placeholder="Search..." oninput="renderOrders()"></div></div>
     <div class="board" id="ord-board"></div>
   </div>
-  <div class="sidebar">
-    <div class="ch"><div class="ai-dot"></div><span data-tx="askClaude">Gemini Chat</span></div>
-    <div class="msgs" id="msgs-orders"></div>
-    <div class="cf"><div class="cr"><textarea class="ci" id="inp-orders" rows="1" onkeydown="onKey(event,'orders')"></textarea><button class="csend" onclick="send('orders')">&#8593;</button></div></div>
   </div>
-</div>
 
 <!-- QUOTES — reorganised layout -->
 <div id="page-quotes" class="page">
@@ -381,12 +365,7 @@ button{cursor:pointer}
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px" id="cmp-tables"></div>
     </div>
   </div>
-  <div class="sidebar">
-    <div class="ch"><div class="ai-dot"></div><span data-tx="askClaude">Gemini Chat</span></div>
-    <div class="msgs" id="msgs-quotes"></div>
-    <div class="cf"><div class="cr"><textarea class="ci" id="inp-quotes" rows="1" onkeydown="onKey(event,'quotes')"></textarea><button class="csend" onclick="send('quotes')">&#8593;</button></div></div>
   </div>
-</div>
 
 <!-- COMPETITORS -->
 <div id="page-competitors" class="page">
@@ -427,43 +406,7 @@ button{cursor:pointer}
       </div>
     </div>
   </div>
-  <div class="sidebar">
-    <div class="ch"><div class="ai-dot"></div><span data-tx="askClaude">Gemini Chat</span></div>
-    <div class="msgs" id="msgs-competitors"></div>
-    <div class="cf"><div class="cr"><textarea class="ci" id="inp-competitors" rows="1" onkeydown="onKey(event,'competitors')"></textarea><button class="csend" onclick="send('competitors')">&#8593;</button></div></div>
   </div>
-</div>
-
-<!-- FAQ -->
-<div id="page-faq" class="page">
-  <div class="main">
-    <div class="sh"><div><div class="stitle" data-tx="faqTitle">FAQ / Knowledge Base</div><div style="font-size:11px;color:var(--m);margin-top:2px" data-tx="faqSub">Ask anything about AYG</div></div></div>
-    <div class="qres" style="margin-bottom:11px">
-      <div style="font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px" data-tx="knowledgeSources">Knowledge Sources</div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:8px;background:rgba(110,231,183,.05);border:1px solid rgba(110,231,183,.25);border-radius:var(--r);padding:8px 11px">
-          <span style="font-size:17px">&#128203;</span>
-          <div><div style="font-size:12px;font-weight:500">AYG Operations Claude</div><div style="font-size:10px;color:var(--m)">94 clients &middot; 91 orders &middot; Pricing &middot; Competitors</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;opacity:.5;background:var(--s2);border:1px dashed var(--b2);border-radius:var(--r);padding:8px 11px;cursor:pointer" onclick="alert('Upload PDFs or Word docs to this chat to expand the knowledge base.')">
-          <span style="font-size:17px">+</span><div><div style="font-size:12px;font-weight:500" data-tx="addDoc">Add document</div><div style="font-size:10px;color:var(--m)" data-tx="addDocSub">PDF or Word</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="qres" style="display:flex;flex-direction:column;height:calc(100vh - 270px)">
-      <div style="padding:9px 13px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:7px">
-        <div class="ai-dot"></div><span style="font-size:13px;font-weight:500" data-tx="askAnything">Ask anything about AYG</span>
-        <span style="font-size:11px;color:var(--m);margin-left:auto" data-tx="poweredBy">Powered by Claude</span>
-      </div>
-      <div class="msgs" id="msgs-faq" style="flex:1"></div>
-      <div class="cf">
-        <div class="sugs" id="sugs-faq" style="margin-bottom:6px"></div>
-        <div class="cr"><textarea class="ci" id="inp-faq" rows="2" style="min-height:42px" onkeydown="onKey(event,'faq')"></textarea><button class="csend" onclick="send('faq')" style="height:42px;padding:0 12px">&#8593;</button></div>
-      </div>
-    </div>
-  </div>
-  <div class="sidebar" style="display:none"></div>
-</div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
@@ -503,7 +446,7 @@ var CMP_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835};
 // ── TRANSLATIONS ──────────────────────────────────────────────────────────
 var TX_EN={
   todoTab:'To-do & Inbox',crmTab:'Sales CRM',ordersTab:'Orders',quotesTab:'Quotes & Pricing',
-  competitorsTab:'Competitors',faqTab:'FAQ',askClaude:'Gemini Chat',
+  competitorsTab:'Competitors',
   dailyCheck:'Daily checklist',clickSection:'Click a section above',
   clientPipeline:'Client Pipeline',ordersPipeline:'Orders Pipeline',
   total:'Total',enquiries:'Enquiries',pendingQuote:'Pending Quote',
@@ -532,9 +475,9 @@ var TX_EN={
   company:'Company',sizeArea:'Size/Area',diff:'Diff',qty:'Qty',priceSgd:'Sell Price SGD',pricePc:'Price/pc (SGD)',
   noHist:'No matching historical orders',
   satoList:'Sato Asia List',jewelList:'Jewel Creative List',comment:'Comment',bothNote:'Also our client',
-  faqTitle:'FAQ / Knowledge Base',faqSub:'Ask anything about AYG operations',
-  knowledgeSources:'Knowledge Sources',addDoc:'Add document',addDocSub:'PDF or Word',
-  askAnything:'Ask anything about AYG',poweredBy:'Powered by Claude',
+  
+  
+  
   thinking:'Thinking...',synced:'Synced',close:'Close',save:'Save',textSize:'Text',ourClient:'Our client',
   stdNote:'Valid till 31 Dec 2026 \u00b7 1C Black \u00b7 PP White \u00b7 Core 4cm \u00b7 excl. GST',
   cmpNote:'Competitor (Sato) pricing \u00b7 SGD per piece \u00b7 packs of 1,000',
@@ -544,7 +487,7 @@ var TX_EN={
 
 var TX_ZH={
   todoTab:'\u5f85\u529e\u4e8b\u9879',crmTab:'\u9500\u552e\u7ba1\u7406',ordersTab:'\u8ba2\u5355\u7ba1\u7406',quotesTab:'\u62a5\u4ef7\u8ba1\u7b97',
-  competitorsTab:'\u7ade\u4e89\u5bf9\u624b',faqTab:'FAQ\u77e5\u8bc6\u5e93',askClaude:'\u95ee Claude',
+  competitorsTab:'\u7ade\u4e89\u5bf9\u624b',
   dailyCheck:'\u6bcf\u65e5\u5f85\u529e',clickSection:'\u70b9\u51fb\u4e0a\u65b9\u5206\u7c7b\u67e5\u770b\u8be6\u60c5',
   clientPipeline:'\u5ba2\u6237\u7ba1\u9053',ordersPipeline:'\u8ba2\u5355\u7ba1\u9053',
   total:'\u603b\u6570',enquiries:'\u8be2\u76d8',pendingQuote:'\u5f85\u62a5\u4ef7',
@@ -573,9 +516,9 @@ var TX_ZH={
   company:'\u516c\u53f8',sizeArea:'\u5c3a\u5bf8/\u9762\u79ef',diff:'\u9762\u79ef\u5dee',qty:'\u6570\u91cf',priceSgd:'\u552e\u4ef7 SGD',pricePc:'\u6bcf\u5f20\u4ef7\u683c (SGD)',
   noHist:'\u65e0\u5339\u914d\u5386\u53f2\u8ba2\u5355',
   satoList:'Sato Asia \u5ba2\u6237\u5217\u8868',jewelList:'Jewel Creative \u5ba2\u6237\u5217\u8868',comment:'\u5907\u6ce8',bothNote:'\u4e5f\u662f\u6211\u4eec\u5ba2\u6237',
-  faqTitle:'FAQ \u77e5\u8bc6\u5e93',faqSub:'\u8be2\u95eeAYG\u8fd0\u8425\u3001BCRS\u3001\u5b9a\u4ef7\u3001\u5ba2\u6237\u76f8\u5173\u95ee\u9898',
-  knowledgeSources:'\u77e5\u8bc6\u6765\u6e90',addDoc:'\u6dfb\u52a0\u6587\u4ef6',addDocSub:'PDF\u6216Word',
-  askAnything:'\u8be2\u95eeAYG\u4efb\u4f55\u4e1a\u52a1\u95ee\u9898',poweredBy:'\u7531Claude\u63d0\u4f9b\u652f\u6301',
+  
+  
+  
   thinking:'\u6b63\u5728\u601d\u8003...',synced:'\u540c\u6b65\u65f6\u95f4',close:'\u5173\u95ed',save:'\u4fdd\u5b58',textSize:'\u5b57\u4f53',
   stdNote:'\u6709\u6548\u671f\u81f331 Dec 2026 \u00b7 \u5355\u8272\u9ed1 \u00b7 PP\u767d \u00b7 \u7eb8\u82af4cm \u00b7 \u4e0d\u542b GST',
   cmpNote:'\u7ade\u4e89\u5bf9\u624b(Sato)\u4ef7\u683c \u00b7 \u6bcf\u5f20SGD \u00b7 \u6bcf\u888b1,000\u5f20',
@@ -588,7 +531,7 @@ var activeSection=null,dragId=null,editId=null,editType=null;
 var dailyDone={},secDone={},histArea=0,histCol='b';
 var satoData=SATO_LIST.slice(),jewelData=JEWEL_LIST.slice();
 var satoSK='name',satoSD=1,jewelSK='name',jewelSD=1;
-var chatHistory={todo:[],crm:[],orders:[],quotes:[],competitors:[],faq:[]};
+
 
 // ── FONT SIZE ─────────────────────────────────────────────────────────────
 function setFs(v){document.documentElement.style.setProperty('--fs',v+'px');document.getElementById('fs-val').textContent=v+'px';}
@@ -611,7 +554,7 @@ function goTab(tab,btn){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('page-'+tab).classList.add('on');
   btn.classList.add('on');
-  renderSugs(tab);
+  
   if(tab==='competitors'){renderSato();renderJewel();}
 }
 
@@ -934,46 +877,10 @@ function calcQ(){
 }
 
 // ── CHAT ─────────────────────────────────────────────────────────────────
-var SUGS_EN={};
-var SUGS_ZH={};
-var CTX={
-  todo:function(){var ul=UNPAID.slice(0,5).map(function(o){return o.name+' S$'+o.price;}).join(', ');var pl=PQA.slice(0,5).map(function(c){return c.name;}).join(', ');return 'AYG Capital Singapore BCRS barcode label printing. Unpaid invoices ('+UNPAID.length+'): '+ul+'. Pending quotes ('+PQA.length+'): '+pl+'. Tasks: '+DAILY.slice(0,5).join('; ')+'. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be concise.';},
-  crm:function(){var ss=CRM_STAGES.map(function(s){return s.id+':'+CLIENTS.filter(function(c){return c.stage===s.id;}).length;}).join(', ');return 'AYG CRM. '+CLIENTS.length+' clients. Stages: '+ss+'. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be concise.';},
-  orders:function(){var ip=ORDERS.filter(function(o){return o.status==='In Production';}).map(function(o){return o.name;}).slice(0,5).join(', ');var ul=UNPAID.slice(0,5).map(function(o){return o.name+' S$'+o.price;}).join(', ');return 'AYG orders. '+ORDERS.length+' total. In Production: '+ip+'. Unpaid: '+ul+'. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be concise.';},
-  quotes:function(){return 'AYG BCRS label printing quotes. SGD/RMB 5.3. Sell=2.1x cost. Airfreight: 10k pcs 2250mm2=4kg, RMB35/kg. Sizes: 75x30(2250mm2),65x24(1560mm2),75x65(4875mm2),65x59(3835mm2). Competitor: Sato. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be concise.';},
-  competitors:function(){var bl=SATO_LIST.filter(function(s){return s.comment&&s.comment.toUpperCase().indexOf('BOTH')>-1;}).map(function(s){return s.company;}).join(', ');return 'AYG competitor data. Sato Asia: '+SATO_LIST.length+' clients. Jewel Creative: '+JEWEL_LIST.length+' clients. Both AYG+competitor: '+bl+'. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be concise.';},
-  faq:function(){return 'AYG Capital Pte Ltd, Singapore. BCRS barcode label printing. China factory (Mashang, Yayi printers). Airfreight via Hong Feng Express, Kai Da Express to SG/MY/CN/TW/HK/ID/JP/TH. Sizes: 75x30,27x17,65x59,75x65,65x24mm. SGD/RMB 5.3. Sell ~2.1x cost. Competitor: Sato. Reply in '+(lang==='zh'?'Chinese':'English')+'. Be thorough.';}
-};
-function renderSugs(tab){}
-function quickSend(s,txt){}
-function onKey(e,s){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(s);}}
-function appendMsg(s,role,txt){var c=document.getElementById('msgs-'+s);var d=document.createElement('div');d.className='msg msg-'+role;d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;return d;}
-var _lastSend=0;
-async function send(s){
-  var now=Date.now();
-  if(now-_lastSend<5000){
-    var inp2=document.getElementById('inp-'+s);
-    if(inp2){var w=Math.ceil((5000-(now-_lastSend))/1000);inp2.placeholder='Wait '+w+'s...';setTimeout(function(){inp2.placeholder='';},5000-(now-_lastSend));}
-    return;
-  }
-  _lastSend=now;var inp=document.getElementById('inp-'+s);var txt=inp.value.trim();if(!txt)return;inp.value='';appendMsg(s,'u',txt);var th=appendMsg(s,'a',TX.thinking);th.classList.add('msg-th');chatHistory[s].push({role:'user',content:txt});try{var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:CTX[s](),messages:chatHistory[s]})});var data=await res.json();var reply=(data.content&&data.content[0]&&data.content[0].text)||'Error';th.textContent=reply;th.classList.remove('msg-th');chatHistory[s].push({role:'assistant',content:reply});if(chatHistory[s].length>20)chatHistory[s]=chatHistory[s].slice(-20);}catch(e){th.textContent=lang==='zh'?'\u8fde\u63a5\u9519\u8bef\uff0c\u8bf7\u91cd\u8bd5\u3002':'Connection error.';th.classList.remove('msg-th');}}
-
-function renderAll(){renderTodo();renderCRM();renderOrders();renderSugs(null);renderSato();renderJewel();}
 
 
-// ═══════════════════════════════════════════════════════════════════
-// SHAREPOINT LIVE SYNC — Pure OAuth2 PKCE + Microsoft Graph
-// No external auth library needed. Uses browser's built-in fetch + crypto.
-// ═══════════════════════════════════════════════════════════════════
-var SP = {
-  tenantId:  '1edff858-9d81-44cb-b7d1-48274bf5bd2f',
-  clientId:  'edc1642b-80a6-450a-9b81-82cfe32bb2a3',
-  hostname:  'aygprinting3.sharepoint.com',
-  sitePath:  '/sites/AYGManagement',
-  fileName:  'BCRS Scheme Management Excel.xlsx',
-  scopes:    'https://graph.microsoft.com/Files.Read.All https://graph.microsoft.com/Sites.Read.All offline_access',
-  redirectUri: 'https://aygprinting.github.io/aygops/'
-};
+
+;
 
 // ── PKCE helpers ──────────────────────────────────────────────────
 function b64url(buf) {
@@ -1275,13 +1182,7 @@ async function initApp() {
 }
 
 
-function toggleSidebar(tab) {
-  var sidebar = tab.closest('.sidebar');
-  if (!sidebar) return;
-  var collapsed = sidebar.classList.toggle('collapsed');
-  tab.innerHTML = collapsed ? '&#8249;' : '&#8250;';
-  tab.title = collapsed ? 'Expand chat' : 'Minimise chat';
-}
+
 function initSidebarTabs() {
   document.querySelectorAll('.sidebar').forEach(function(sb) {
     if (sb.style.display === 'none') return;
