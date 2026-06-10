@@ -972,7 +972,7 @@ var SP = {
   sitePath:  '/sites/AYGManagement',
   fileName:  'BCRS Scheme Management Excel.xlsx',
   scopes:    'https://graph.microsoft.com/Files.Read.All https://graph.microsoft.com/Sites.Read.All offline_access',
-  redirectUri: 'https://aygprinting3.sharepoint.com/sites/AYGManagement/Shared%20Documents/AYGOps.html'
+  redirectUri: 'https://aygprinting.github.io/aygops/'
 };
 
 // ── PKCE helpers ──────────────────────────────────────────────────
@@ -1051,7 +1051,7 @@ async function handleAuthCallback() {
   if (data.access_token) {
     saveTokens(data);
     // Clean URL
-    window.history.replaceState({}, '', 'https://aygprinting3.sharepoint.com/sites/AYGManagement/Shared%20Documents/AYGOps.html');
+    window.history.replaceState({}, '', 'https://aygprinting.github.io/aygops/');
     return true;
   } else {
     showSyncStatus('Token error: ' + (data.error_description || data.error), 'error');
