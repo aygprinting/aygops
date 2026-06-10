@@ -972,22 +972,47 @@ function renderSugs(tab){}
 function quickSend(s,txt){}
 function onKey(e,s){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(s);}}
 function appendMsg(s,role,txt){var c=document.getElementById('msgs-'+s);var d=document.createElement('div');d.className='msg msg-'+role;d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;return d;}
-async function send(s){var inp=document.getElementById('inp-'+s);var txt=inp.value.trim();if(!txt)return;inp.value='';appendMsg(s,'u',txt);var th=appendMsg(s,'a',TX.thinking);th.classList.add('msg-th');chatHistory[s].push({role:'user',content:txt});try{var res=await fetch('https://aygops-proxy.ayg.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:CTX[s](),messages:chatHistory[s]})});var data=await res.json();var reply=(data.content&&data.content[0]&&data.content[0].text)||'Error';th.textContent=reply;th.classList.remove('msg-th');chatHistory[s].push({role:'assistant',content:reply});if(chatHistory[s].length>20)chatHistory[s]=chatHistory[s].slice(-20);}catch(e){th.textContent=lang==='zh'?'\u8fde\u63a5\u9519\u8bef\uff0c\u8bf7\u91cd\u8bd5\u3002':'Connection error.';th.classList.remove('msg-th');}}
-
-function renderAll(){renderTodo();renderCRM();renderOrders();renderSugs(null);renderSato();renderJewel();}
-
-
-// ═══════════════════════════════════════════════════════════════════
-// SHAREPOINT LIVE SYNC — OAuth2 PKCE (no external auth library)
-// ═══════════════════════════════════════════════════════════════════
-var SP = {
-  tenantId:    '1edff858-9d81-44cb-b7d1-48274bf5bd2f',
-  clientId:    'edc1642b-80a6-450a-9b81-82cfe32bb2a3',
-  hostname:    'aygprinting3.sharepoint.com',
-  sitePath:    '/sites/AYGManagement',
-  fileName:    'BCRS Scheme Management Excel.xlsx',
-  scopes:      'https://graph.microsoft.com/Files.Read.All https://graph.microsoft.com/Sites.Read.All offline_access',
-  redirectUri: 'https://aygprinting.github.io/aygops/'
+var _lastSend = 0;
+async function send(s){
+  // Rate limit: 1 message per 5 seconds
+  var now = Date.now();
+  if (now - _lastSend < 5000) {
+    var wait = Math.ceil((5000 - (now - _lastSend)) / 1000);
+    var inp2 = document.getElementById('inp-'+s);
+    var oldPh = inp2.placeholder;
+    inp2.placeholder = 'Please wait ' + wait + 's...';
+    setTimeout(function(){ inp2.placeholder = oldPh; }, 5000 - (now - _lastSend));
+    return;
+  }
+  _lastSend = now;
+  var inp=document.getElementById('inp-'+s);
+  var txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  appendMsg(s,'u',txt);
+  var th=appendMsg(s,'a',TX.thinking);
+  th.classList.add('msg-th');
+  chatHistory[s].push({role:'user',content:txt});
+  try{
+    var res=await fetch('https://aygops-proxy.ayg.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:CTX[s](),messages:chatHistory[s]})
+    });
+    var data=await res.json();
+    var reply=(data.content&&data.content[0]&&data.content[0].text)||'Error';
+    // Check for rate limit error in reply
+    if(reply.indexOf('TooManyRequests')>-1||reply.indexOf('429')>-1||reply.indexOf('quota')>-1){
+      th.textContent=lang==='zh'?'\u8bf7\u7a0d\u5019\u518d\u8bd5\uff08\u6bcf\u5206\u949f\u965015\u6761\uff09':'Rate limit hit. Please wait a moment and try again.';
+    } else {
+      th.textContent=reply;
+    }
+    th.classList.remove('msg-th');
+    chatHistory[s].push({role:'assistant',content:reply});
+    if(chatHistory[s].length>8)chatHistory[s]=chatHistory[s].slice(-8);
+  }catch(e){
+    th.textContent=lang==='zh'?'\u8fde\u63a5\u9519\u8bef\uff0c\u8bf7\u91cd\u8bd5\u3002':'Connection error. Please try again.';
+    th.classList.remove('msg-th');
+  }
 };
 
 // PKCE helpers
