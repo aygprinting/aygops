@@ -403,31 +403,9 @@ async function fetchExcelFromSharePoint(){
   try{
     var token=getAccessToken();
     if(!token){await spLogin();return;}
-    // Step 1: Get site (cached)
-    var cachedSite=sessionStorage.getItem('sp_site_json');
-    var site;
-    if(cachedSite){site=JSON.parse(cachedSite);}
-    else{
-      showSyncStatus('Fetching site...','loading');
-      var sr=await graphFetch('/sites/'+SP.hostname+':'+SP.sitePath,token);
-      if(!sr.ok)throw new Error('Site not accessible ('+sr.status+')');
-      site=await sr.json();
-      sessionStorage.setItem('sp_site_json',JSON.stringify({id:site.id}));
-    }
-    // Step 2: Get file ID (cached)
-    var fileId=sessionStorage.getItem('sp_file_id');
-    var cachedSiteId=sessionStorage.getItem('sp_site_id');
-    if(!fileId||cachedSiteId!==site.id){
-      showSyncStatus('Finding file...','loading');
-      var fr=await graphFetch("/sites/"+site.id+"/drive/root/search(q='"+encodeURIComponent(SP.fileName)+"')",token);
-      if(!fr.ok)throw new Error('File search failed ('+fr.status+')');
-      var fd=await fr.json();
-      var files=(fd.value||[]).filter(function(f){return f.name===SP.fileName;});
-      if(!files.length)throw new Error('"'+SP.fileName+'" not found');
-      fileId=files[0].id;
-      sessionStorage.setItem('sp_file_id',fileId);
-      sessionStorage.setItem('sp_site_id',site.id);
-    }
+    // Step 1+2: Use hardcoded site+file IDs — eliminates 2 API round trips
+    var site = { id: 'aygprinting3.sharepoint.com,e91681c4-2c51-4d4e-8b82-f64b431b5f8f,ddf8c702-75a3-4d6b-8a06-e0a16a378730' };
+    var fileId = '01F2SUMRC3PLMJ3HIRCBB3UNPAVWYLBNIE';
     // Step 3: Download file
     showSyncStatus('Downloading...','loading');
     var dr=await graphFetch('/sites/'+site.id+'/drive/items/'+fileId+'/content',token);
