@@ -208,6 +208,7 @@ button{cursor:pointer}
     <button class="qtab on" onclick="switchQ('est',this)" data-tx="quoteEstimator">Quote Estimator</button>
     <button class="qtab" onclick="switchQ('std',this)" data-tx="standardPricing">Standard Pricing</button>
     <button class="qtab" onclick="switchQ('cmp',this)" data-tx="competitorSato">Competitor (Sato)</button>
+    <button class="qtab" onclick="switchQ('honsen',this)">Competitor (Honsen)</button>
   </div>
   <div id="qt-est">
     <div style="display:grid;grid-template-columns:200px 1fr 1fr;gap:11px;align-items:start">
@@ -261,7 +262,7 @@ button{cursor:pointer}
       </div>
     </div>
     <div id="pricing-estimates" style="display:none;margin-top:11px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
         <div style="padding:12px;background:rgba(110,231,183,.06);border:1px solid rgba(110,231,183,.3);border-radius:var(--rl)">
           <div style="font-size:11px;font-weight:600;color:var(--grn);margin-bottom:8px" data-tx="stdEstimate">&#9733; Standard Pricing Estimate</div>
           <div id="std-estimate-body"></div>
@@ -269,6 +270,10 @@ button{cursor:pointer}
         <div style="padding:12px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.3);border-radius:var(--rl)">
           <div style="font-size:11px;font-weight:600;color:var(--amb);margin-bottom:8px" data-tx="cmpEstimate">&#9733; Competitor (Sato) Estimate</div>
           <div id="cmp-estimate-body"></div>
+        </div>
+        <div style="padding:12px;background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.3);border-radius:var(--rl)">
+          <div style="font-size:11px;font-weight:600;color:var(--pnk);margin-bottom:8px">&#9733; Competitor (Honsen) Estimate</div>
+          <div id="honsen-estimate-body"></div>
         </div>
       </div>
     </div>
@@ -282,6 +287,10 @@ button{cursor:pointer}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px" id="cmp-tables"></div>
   </div>
 </div>
+  <div id="qt-honsen" style="display:none">
+    <div style="font-size:11px;color:var(--m);margin-bottom:9px">Honsen pricing &middot; SGD per piece &middot; Range-based &middot; <span style="color:var(--grn)">&#9733; = nearest to your size</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px" id="honsen-tables"></div>
+  </div>
 
 <!-- COMPETITORS -->
 <div id="page-competitors" class="page">
@@ -341,6 +350,8 @@ var JEWEL_LIST=[{"company":"Naspac Marketing Pte Ltd","qty":50000,"comment":"no 
 var ORDER_COMPANIES=["ATLAS VENDING SOLUTIONS PTE. LTD.","BCRS","CHUNG HWA FOOD INDUSTRIES PRIVATE LIMITED","CYF Enterprise (S) Pte Ltd","Chi Forest SG","Chuan Hong Seng","ENTERPRISE GO PTE. LTD.","Etika Pte Ltd","Fresh n Natural","HONG XIN DA PTE LTD","HONG XIN DA PTE. LTD.","Hong Xin Da Pte Ltd","I-MEX MARKETS PTE. LTD.","INTERBEV (SINGAPORE) LIMITED","Ito En","Ken Hong Seng Pte Ltd/Home Town","LIM LAM THYE (PRIVATE) LIMITED","Lactalis Oak Plus","MARKET_SINGAPORE PTE. LTD.","Made Brands Pte Ltd","Made Brands Pte Ltd 样品","Maybev Pte Ltd","Meng Chong","Monster Energy Singapore","Nissin Foods","ROTIBOY BAKESHOPPE PTE. LTD.","WXN Distro Pte Ltd","YHS (SINGAPORE) PTE LTD","Zen-Noh International Asia Pte Ltd","pokka 000113"];
 
 var STD_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
+var HONSEN_PRICING={"75x30":[{"min":1,"max":5000,"ppp":0.063},{"min":5001,"max":10001,"ppp":0.028},{"min":10001,"max":50000,"ppp":0.013},{"min":50001,"max":100000,"ppp":0.0115},{"min":100001,"max":9999999,"ppp":0.0068}],"65x24":[{"min":1,"max":5000,"ppp":0.075},{"min":5001,"max":10001,"ppp":0.025},{"min":10001,"max":50000,"ppp":0.011},{"min":50001,"max":100000,"ppp":0.008},{"min":100001,"max":9999999,"ppp":0.0039}],"75x65":[{"min":1,"max":5000,"ppp":0.12},{"min":5001,"max":10001,"ppp":0.031},{"min":10001,"max":50000,"ppp":0.017},{"min":50001,"max":100000,"ppp":0.012},{"min":100001,"max":9999999,"ppp":0.0092}],"65x59":[{"min":1,"max":5000,"ppp":0.085},{"min":5001,"max":10001,"ppp":0.03},{"min":10001,"max":50000,"ppp":0.02},{"min":50001,"max":100000,"ppp":0.011},{"min":100001,"max":9999999,"ppp":0.0075}],"27x17":[{"min":1,"max":5000,"ppp":0.052},{"min":5001,"max":10001,"ppp":0.02},{"min":10001,"max":50000,"ppp":0.007},{"min":50001,"max":100000,"ppp":0.005},{"min":100001,"max":9999999,"ppp":0.0016}]};
+var HONSEN_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
 var CMP_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
 var CRM_STAGES=[{id:'Enquiry',zh:'\u8be2\u76d8',color:'#60a5fa'},{id:'Registering with BCRS',zh:'\u6ce8\u518cBCRS',color:'#a78bfa'},{id:'Pending info',zh:'\u5f85\u4fe1\u606f',color:'#fbbf24'},{id:'Pending Quote Approval',zh:'\u5f85\u62a5\u4ef7',color:'#f472b6'},{id:'1st print',zh:'\u9996\u6b21\u5370\u5237',color:'#2dd4bf'},{id:'Repeat print',zh:'\u91cd\u590d\u5370\u5237',color:'#6ee7b7'},{id:'Lost',zh:'\u5df2\u6d41\u5931',color:'#45454f'}];
 var ORD_STAGES=[{id:'In Production',zh:'\u751f\u4ea7\u4e2d',color:'#a78bfa'},{id:'Out for Delivery',zh:'\u8fd0\u8f93\u4e2d',color:'#2dd4bf'},{id:'Delivered',zh:'\u5df2\u4ea4\u8d27',color:'#6ee7b7'},{id:'Paid',zh:'\u5df2\u4ed8\u6b3e',color:'#45454f'}];
@@ -389,17 +400,17 @@ async function handleCallback(){
   var body=new URLSearchParams({client_id:SP.clientId,grant_type:'authorization_code',code:code,redirect_uri:SP.redirectUri,code_verifier:verifier,scope:SP.scopes});
   var resp=await fetch('https://login.microsoftonline.com/'+SP.tenantId+'/oauth2/v2.0/token',{method:'POST',body:body,headers:{'Content-Type':'application/x-www-form-urlencoded'}});
   var data=await resp.json();
-  if(data.access_token){saveTok(data);window.history.replaceState({},'',SP.redirectUri);return true;}
+  if(data.access_token){saveTok(data);window.history.replaceState({},'',SP.redirectUri);hideLoginScreen();return true;}
   setLoginStatus('Auth error: '+(data.error_description||data.error),true);return false;
 }
 
 function setLoginStatus(msg,isErr){var el=document.getElementById('login-status');if(el){el.textContent=msg;el.style.color=isErr?'var(--red)':'var(--m)';}}
-function hideLoginScreen(){var el=document.getElementById('login-screen');if(el){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(function(){el.style.display='none';},400);}var sb=document.getElementById('sync-btn');if(sb)sb.style.display='flex';}
+function hideLoginScreen(){var el=document.getElementById('login-screen');if(el)el.style.display='none';var sb=document.getElementById('sync-btn');if(sb)sb.style.display='flex';}
 
 async function graphFetch(path,token){var r=await fetch('https://graph.microsoft.com/v1.0'+path,{headers:{Authorization:'Bearer '+token}});if(r.status===401){sessionStorage.removeItem('sp_at');throw new Error('Session expired');}return r;}
 
 async function fetchExcelFromSharePoint(){
-  showSyncStatus('Connecting...','loading');
+  showSyncStatus('Loading data...','loading');
   try{
     var token=getAccessToken();
     if(!token){await spLogin();return;}
@@ -562,7 +573,7 @@ function satoSort(key){if(satoSK===key)satoSD*=-1;else{satoSK=key;satoSD=key==='
 function jewelSort(key){if(jewelSK===key)jewelSD*=-1;else{jewelSK=key;jewelSD=key==='qty'?-1:1;}jewelData.sort(function(a,b){if(key==='qty')return(b.qty-a.qty)*jewelSD;return a.company.toLowerCase().localeCompare(b.company.toLowerCase())*jewelSD;});renderJewel();}
 
 // ── QUOTES ────────────────────────────────────────────────────────────────
-function switchQ(tab,btn){['est','std','cmp'].forEach(function(t){document.getElementById('qt-'+t).style.display=t===tab?'':'none';});document.querySelectorAll('.qtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');var area=histArea>0?histArea:null;if(tab==='std')renderStd(area);if(tab==='cmp')renderCmp(area);}
+function switchQ(tab,btn){['est','std','cmp','honsen'].forEach(function(t){var el=document.getElementById('qt-'+t);if(el)el.style.display=t===tab?'':'none';});document.querySelectorAll('.qtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');var area=histArea>0?histArea:null;if(tab==='std')renderStd(area);if(tab==='cmp')renderCmp(area);if(tab==='honsen')renderHonsen(area);}
 
 function renderStd(targetArea){
   var sizes=['75x30','65x24','75x65','65x59','27x17'];
@@ -633,9 +644,11 @@ function renderHistTable(area,col){
     document.getElementById('pricing-estimates').style.display='';
     computeEstimate(STD,STD_AREAS,area,totalQty,qps,'std-estimate-body','var(--grn)');
     computeEstimate(COMP_PRICING,CMP_AREAS,area,totalQty,qps,'cmp-estimate-body','var(--amb)');
+    computeHonsenEstimate(area,totalQty,qps);
   }
   if(document.getElementById('qt-std').style.display!=='none')renderStd(area);
   if(document.getElementById('qt-cmp').style.display!=='none')renderCmp(area);
+  if(document.getElementById('qt-honsen')&&document.getElementById('qt-honsen').style.display!=='none')renderHonsen(area);
 }
 
 function applyHF(){
