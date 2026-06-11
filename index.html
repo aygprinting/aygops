@@ -25,7 +25,7 @@ button{cursor:pointer}
 .nav{display:flex;align-items:center;background:var(--sur);border-bottom:1px solid var(--b);padding:0 14px;height:52px;position:sticky;top:0;z-index:50;gap:4px}
 .logo{font-size:15px;font-weight:600;margin-right:12px;white-space:nowrap;flex-shrink:0}
 .logo em{color:var(--grn);font-style:normal}
-.tabs{display:flex;gap:2px;flex:1;overflow-x:auto}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
 .tab{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:var(--r);font-size:12px;color:var(--m);border:none;background:transparent;transition:all .15s;white-space:nowrap}
 .tab:hover{color:var(--t);background:var(--s2)}.tab.on{color:var(--t);background:var(--s3);font-weight:500}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -39,7 +39,7 @@ button{cursor:pointer}
 .pulse{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 /* Layout */
-.page{display:none;height:calc(100vh - 52px);overflow-y:auto;padding:14px 16px}
+.page{display:none;height:calc(100vh - 52px);overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch}
 .page.on{display:block}
 /* Stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-bottom:12px}
@@ -133,6 +133,53 @@ button{cursor:pointer}
 .mv{font-family:"JetBrains Mono",monospace;text-align:right;word-break:break-word;font-size:11px}
 .msel{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:6px 9px;color:var(--t);font-size:12px;outline:none;margin-top:9px}
 .macts{display:flex;gap:7px;margin-top:11px;justify-content:flex-end}
+
+/* ── Mobile responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .nav{padding:0 8px;gap:3px;height:auto;min-height:52px;flex-wrap:wrap}
+  .tabs{overflow-x:auto;flex:1;min-width:0;padding:4px 0}
+  .tab{padding:5px 8px;font-size:11px}
+  .nav-right{gap:4px;flex-shrink:0}
+  .fs-bar{display:none}
+  .lang-wrap{border-radius:14px}
+  .sync-box{font-size:9px;padding:3px 6px}
+  #sync-time{font-size:9px}
+  .page{padding:10px 8px}
+  /* Todo */
+  .todo-body{grid-template-columns:1fr!important;gap:6px}
+  .tcol{max-height:220px}
+  .det{max-height:calc(100vh - 420px)}
+  .todo-pills{gap:4px}
+  .pill{min-width:80px;padding:6px 8px}
+  .pval{font-size:15px}
+  /* Board columns — horizontal scroll */
+  .board{gap:5px}
+  .col{flex:0 0 160px}
+  /* Stats */
+  .stats{grid-template-columns:repeat(3,1fr)!important;gap:5px}
+  .sval{font-size:16px}
+  /* Quotes — stack vertically */
+  #qt-est > div[style*="grid-template-columns:200px"]{display:flex!important;flex-direction:column!important;gap:9px}
+  #q-result,#q-logic,#q-hist-box{width:100%}
+  #pricing-estimates > div{grid-template-columns:1fr!important}
+  /* Competitor tables */
+  .comp-table{font-size:11px}
+  .comp-table th,.comp-table td{padding:4px 5px}
+  /* Standard/competitor pricing grids */
+  #std-tables,#cmp-tables,#honsen-tables{grid-template-columns:1fr!important}
+  /* Competitors page */
+  #page-competitors > div{grid-template-columns:1fr!important}
+  /* Modal */
+  .modal{width:calc(100vw - 24px)!important;padding:14px}
+  /* Login card */
+  .login-card{width:calc(100vw - 32px);padding:32px 20px}
+}
+@media (max-width: 480px) {
+  .tab{font-size:10px;padding:4px 6px}
+  .stats{grid-template-columns:repeat(2,1fr)!important}
+  .col{flex:0 0 145px}
+  #std-tables,#cmp-tables,#honsen-tables{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
@@ -670,10 +717,16 @@ function renderHistTable(area,col){
 
 function applyHF(){
   var fq=parseInt(document.getElementById('h-qps').value)||0;
+  // Try colour match first, fall back to all orders if fewer than 5 results
   var colF=ORDER_HIST.filter(function(o){return normCol(o.colour)===histCol;});
   var sorted=colF.slice().sort(function(a,b){return Math.abs(a.area-histArea)-Math.abs(b.area-histArea);});
-  if(fq>0)sorted=sorted.filter(function(o){var qps=o.sku>0?Math.round(o.qty/o.sku):o.qty;return Math.abs(qps-fq)<=fq*0.5;});
+  if(sorted.length<5){
+    // Fall back to all orders sorted by area proximity
+    sorted=ORDER_HIST.slice().sort(function(a,b){return Math.abs(a.area-histArea)-Math.abs(b.area-histArea);});
+  }
+  if(fq>0){var filtered=sorted.filter(function(o){var qps=o.sku>0?Math.round(o.qty/o.sku):o.qty;return Math.abs(qps-fq)<=fq*0.5;});if(filtered.length>0)sorted=filtered;}
   var top10=sorted.slice(0,10);
+  // Should never be empty — ORDER_HIST always has data after sync
   if(!top10.length){document.getElementById('q-hist').innerHTML='<div class="dempty">'+TX.noHist+'</div>';return;}
   var html='<table class="ht"><thead><tr><th>'+TX.company+'</th><th>'+TX.sizeArea+'</th><th>'+TX.diff+'</th><th>'+TX.qty+'</th><th>SKU</th><th style="color:var(--amb)">QTY/SKU</th><th>'+TX.priceSgd+'</th><th>'+TX.pricePc+'</th></tr></thead><tbody>';
   top10.forEach(function(o){var diff=o.area-histArea;var ds=diff===0?'color:var(--grn)':Math.abs(diff)<500?'color:var(--amb)':'color:var(--dim)';var diffStr=(diff===0?'=':(diff>0?'+':'')+Math.round(diff).toLocaleString())+'mm\u00b2';var qps=o.sku>0?Math.round(o.qty/o.sku):o.qty;html+='<tr class="'+(Math.abs(diff)<200?'hn':'')+'"><td>'+o.company+'</td><td style="white-space:nowrap">'+o.size+'<br><span class="had">'+o.area.toLocaleString()+'mm\u00b2</span></td><td style="'+ds+';font-size:10px">'+diffStr+'</td><td>'+o.qty.toLocaleString()+'</td><td>'+o.sku+'</td><td style="font-family:\'JetBrains Mono\',monospace;color:var(--amb)">'+qps.toLocaleString()+'</td><td style="font-family:\'JetBrains Mono\',monospace">S$'+o.sell.toLocaleString()+'</td><td class="hpp">S$'+o.ppp.toFixed(5)+'</td></tr>';});
