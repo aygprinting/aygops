@@ -780,6 +780,59 @@ function renderAll(){
   renderSato();renderJewel();
 }
 
+
+function getHonsenPpp(size,qps){
+  var tiers=HONSEN_PRICING[size];if(!tiers)return null;
+  for(var i=0;i<tiers.length;i++){if(qps>=tiers[i].min&&qps<=tiers[i].max)return tiers[i];}
+  return tiers[tiers.length-1];
+}
+
+function computeHonsenEstimate(targetArea,totalQty,qps){
+  var body=document.getElementById('honsen-estimate-body');
+  if(!body||!targetArea||!totalQty){return;}
+  var keys=Object.keys(HONSEN_AREAS);
+  var sorted=keys.slice().sort(function(a,b){return Math.abs(HONSEN_AREAS[a]-targetArea)-Math.abs(HONSEN_AREAS[b]-targetArea);});
+  var nearestSz=sorted[0];
+  var tier=getHonsenPpp(nearestSz,qps);
+  if(!tier){body.innerHTML='<div class="dempty">No data</div>';return;}
+  var ppp=tier.ppp;
+  var estTotal=ppp*totalQty;
+  var rangeLabel=qps>=100001?'>100,000':qps>=50001?'50,001\u2013100,000':qps>=10001?'10,001\u201350,000':qps>=5001?'5,001\u201310,001':'1,000\u20135,000';
+  var mn="font-family:'JetBrains Mono',monospace;font-weight:500";
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:8px">'
+    +'<div><div style="font-size:10px;color:var(--m)">Nearest size</div><div style="'+mn+'">'+nearestSz+'mm</div></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">QTY/SKU lookup</div><div style="'+mn+'">'+qps.toLocaleString()+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">Qty range matched</div><div style="'+mn+';color:var(--pnk)">'+rangeLabel+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">Price per piece</div><div style="'+mn+';color:var(--pnk)">S$'+ppp.toFixed(5)+'</div></div>'
+    +'</div>'
+    +'<div style="padding-top:8px;border-top:1px solid var(--b)">'
+    +'<div style="font-size:10px;color:var(--m);margin-bottom:3px">Est. total ('+totalQty.toLocaleString()+')</div>'
+    +'<div style="font-size:18px;font-weight:600;'+mn+';color:var(--pnk)">S$'+Math.round(estTotal).toLocaleString()+'</div>'
+    +'<div style="font-size:10px;color:var(--dim);margin-top:2px">S$'+ppp.toFixed(5)+' \u00d7 '+totalQty.toLocaleString()+'</div>'
+    +'</div>';
+}
+
+function renderHonsen(targetArea){
+  var el=document.getElementById('honsen-tables');if(!el)return;
+  var sizes=['75x30','65x24','75x65','65x59','27x17'];
+  var sorted=targetArea?sizes.slice().sort(function(a,b){return Math.abs(HONSEN_AREAS[a]-targetArea)-Math.abs(HONSEN_AREAS[b]-targetArea);}):sizes;
+  var nearestSz=sorted[0];
+  var ranges=['1,000\u20135,000','5,001\u201310,001','10,001\u201350,000','50,001\u2013100,000','>100,000'];
+  el.innerHTML=sorted.map(function(sz){
+    var tiers=HONSEN_PRICING[sz]||[];
+    var isNearest=targetArea&&sz===nearestSz;
+    var diff=targetArea?HONSEN_AREAS[sz]-targetArea:null;
+    var diffStr=diff!==null?(diff>0?'+':'')+diff.toLocaleString()+'mm\u00b2':'';
+    return '<div class="qres'+(isNearest?' nearest':'')+'">'
+      +'<div style="font-size:13px;font-weight:600;margin-bottom:1px">'+sz+'mm (Honsen)'+(isNearest?' <span style="font-size:11px;color:var(--grn)">\u2605</span>':'')+'</div>'
+      +'<div style="font-size:10px;color:var(--m);margin-bottom:8px">'+(HONSEN_AREAS[sz]||'?').toLocaleString()+'mm\u00b2'+(diff!==null?' ('+diffStr+')':'')+'</div>'
+      +'<table class="ht"><thead><tr><th>Qty Range</th><th>Per pc SGD</th></tr></thead><tbody>'
+      +tiers.map(function(t,i){return '<tr><td style="white-space:nowrap">'+ranges[i]+'</td><td style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:var(--pnk)">S$'+t.ppp.toFixed(5)+'</td></tr>';}).join('')
+      +'</tbody></table></div>';
+  }).join('');
+}
+
 setLang('en');
 if(window.location.search.includes('code=')||window.location.search.includes('error=')){initApp();}
 else{window.addEventListener('load',function(){initApp();});}
