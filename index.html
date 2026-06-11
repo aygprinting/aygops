@@ -351,6 +351,7 @@ var ORDER_COMPANIES=["ATLAS VENDING SOLUTIONS PTE. LTD.","BCRS","CHUNG HWA FOOD 
 
 var STD_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
 var HONSEN_PRICING={"75x30":[{"min":1,"max":5000,"ppp":0.063},{"min":5001,"max":10001,"ppp":0.028},{"min":10001,"max":50000,"ppp":0.013},{"min":50001,"max":100000,"ppp":0.0115},{"min":100001,"max":9999999,"ppp":0.0068}],"65x24":[{"min":1,"max":5000,"ppp":0.075},{"min":5001,"max":10001,"ppp":0.025},{"min":10001,"max":50000,"ppp":0.011},{"min":50001,"max":100000,"ppp":0.008},{"min":100001,"max":9999999,"ppp":0.0039}],"75x65":[{"min":1,"max":5000,"ppp":0.12},{"min":5001,"max":10001,"ppp":0.031},{"min":10001,"max":50000,"ppp":0.017},{"min":50001,"max":100000,"ppp":0.012},{"min":100001,"max":9999999,"ppp":0.0092}],"65x59":[{"min":1,"max":5000,"ppp":0.085},{"min":5001,"max":10001,"ppp":0.03},{"min":10001,"max":50000,"ppp":0.02},{"min":50001,"max":100000,"ppp":0.011},{"min":100001,"max":9999999,"ppp":0.0075}],"27x17":[{"min":1,"max":5000,"ppp":0.052},{"min":5001,"max":10001,"ppp":0.02},{"min":10001,"max":50000,"ppp":0.007},{"min":50001,"max":100000,"ppp":0.005},{"min":100001,"max":9999999,"ppp":0.0016}]};
+/* HONSEN_V2 */
 var HONSEN_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
 var CMP_AREAS={'75x30':2250,'65x24':1560,'75x65':4875,'65x59':3835,'27x17':459};
 var CRM_STAGES=[{id:'Enquiry',zh:'\u8be2\u76d8',color:'#60a5fa'},{id:'Registering with BCRS',zh:'\u6ce8\u518cBCRS',color:'#a78bfa'},{id:'Pending info',zh:'\u5f85\u4fe1\u606f',color:'#fbbf24'},{id:'Pending Quote Approval',zh:'\u5f85\u62a5\u4ef7',color:'#f472b6'},{id:'1st print',zh:'\u9996\u6b21\u5370\u5237',color:'#2dd4bf'},{id:'Repeat print',zh:'\u91cd\u590d\u5370\u5237',color:'#6ee7b7'},{id:'Lost',zh:'\u5df2\u6d41\u5931',color:'#45454f'}];
@@ -616,20 +617,36 @@ function computeEstimate(pricing,areaMap,targetArea,totalQty,qps,bodyId,color){
   var keys=Object.keys(areaMap);
   var sorted=keys.slice().sort(function(a,b){return Math.abs(areaMap[a]-targetArea)-Math.abs(areaMap[b]-targetArea);});
   var nearestSz=sorted[0];var rows=pricing[nearestSz]||[];if(!rows.length){body.innerHTML='<div class="dempty">No data</div>';return;}
-  // Round UP: find smallest tier >= qps; if none use largest
   var sortedRows=rows.slice().sort(function(a,b){return(a.qty||a.pcs||0)-(b.qty||b.pcs||0);});
-  var nearest=sortedRows.find(function(r){return(r.qty||r.pcs||0)>=qps;})||sortedRows[sortedRows.length-1];
-  var nearestQty=nearest.qty||nearest.pcs||0;var ppp=nearest.ppp||0;var estTotal=ppp*totalQty;
+  var defaultRow=sortedRows.find(function(r){return(r.qty||r.pcs||0)>=qps;})||sortedRows[sortedRows.length-1];
   var mn="font-family:'JetBrains Mono',monospace;font-weight:500";
-  body.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:8px">'
-    +'<div><div style="font-size:10px;color:var(--m)">'+TX.nearestSize+'</div><div style="'+mn+'">'+nearestSz+'mm</div></div>'
-    +'<div><div style="font-size:10px;color:var(--m)">'+TX.qpsLookup+'</div><div style="'+mn+'">'+qps.toLocaleString()+'</div></div>'
-    +'<div><div style="font-size:10px;color:var(--m)">'+TX.nearestTier+'</div><div style="'+mn+'">'+nearestQty.toLocaleString()+'</div></div>'
-    +'<div><div style="font-size:10px;color:var(--m)">'+TX.pricePerPc+'</div><div style="'+mn+';color:'+color+'">S$'+ppp.toFixed(5)+'</div></div>'
-    +'</div><div style="padding-top:8px;border-top:1px solid var(--b)">'
-    +'<div style="font-size:10px;color:var(--m);margin-bottom:3px">'+TX.estTotal+' ('+totalQty.toLocaleString()+')</div>'
-    +'<div style="font-size:18px;font-weight:600;'+mn+';color:'+color+'">S$'+Math.round(estTotal).toLocaleString()+'</div>'
-    +'<div style="font-size:10px;color:var(--dim);margin-top:2px">S$'+ppp.toFixed(5)+' \u00d7 '+totalQty.toLocaleString()+'</div></div>';
+  var selStyle="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:3px 5px;color:var(--t);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;margin-top:2px";
+  var opts=sortedRows.map(function(r){var q=r.qty||r.pcs||0;return '<option value="'+r.ppp+'" '+(r===defaultRow?'selected':'')+'>'+q.toLocaleString()+'</option>';}).join('');
+  var uid=bodyId+'-sel';
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:8px">'
+    +'<div><div style="font-size:10px;color:var(--m)">Nearest size</div><div style="'+mn+'">'+nearestSz+'mm</div></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">QTY/SKU lookup</div><div style="'+mn+'">'+qps.toLocaleString()+'</div></div>'
+    +'<div style="grid-column:1/-1"><div style="font-size:10px;color:var(--m)">Nearest tier (editable)</div>'
+    +'<select id="'+uid+'" data-bodyid="'+bodyId+'" data-qty="'+totalQty+'" data-color="'+color+'" style="'+selStyle+'" onchange="recalcEstimate(this)">'
+    +opts+'</select></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">Price per piece</div><div id="'+bodyId+'-ppp" style="'+mn+';color:'+color+'">S$'+defaultRow.ppp.toFixed(5)+'</div></div>'
+    +'</div>'
+    +'<div style="padding-top:8px;border-top:1px solid var(--b)">'
+    +'<div style="font-size:10px;color:var(--m);margin-bottom:3px">Est. total ('+totalQty.toLocaleString()+')</div>'
+    +'<div id="'+bodyId+'-total" style="font-size:18px;font-weight:600;'+mn+';color:'+color+'">S$'+Math.round(defaultRow.ppp*totalQty).toLocaleString()+'</div>'
+    +'<div id="'+bodyId+'-calc" style="font-size:10px;color:var(--dim);margin-top:2px">S$'+defaultRow.ppp.toFixed(5)+' × '+totalQty.toLocaleString()+'</div>'
+    +'</div>';
+}
+
+function recalcEstimate(sel){
+  if(typeof sel==='string')sel=document.getElementById(sel);
+  if(!sel)return;
+  var bodyId=sel.dataset.bodyid;var totalQty=parseFloat(sel.dataset.qty)||1;var color=sel.dataset.color;
+  var ppp=parseFloat(sel.value)||0;var estTotal=ppp*totalQty;
+  var pppEl=document.getElementById(bodyId+'-ppp');if(pppEl){pppEl.textContent='S$'+ppp.toFixed(5);pppEl.style.color=color;}
+  var totEl=document.getElementById(bodyId+'-total');if(totEl){totEl.textContent='S$'+Math.round(estTotal).toLocaleString();totEl.style.color=color;}
+  var calcEl=document.getElementById(bodyId+'-calc');if(calcEl)calcEl.textContent='S$'+ppp.toFixed(5)+' × '+totalQty.toLocaleString();
 }
 
 function renderHistTable(area,col){
@@ -787,7 +804,7 @@ function getHonsenPpp(size,qps){
   return tiers[tiers.length-1];
 }
 
-function computeHonsenEstimate(targetArea,totalQty,qps){
+/* replaced */ function computeHonsenEstimate_OLD(targetArea,totalQty,qps){
   var body=document.getElementById('honsen-estimate-body');
   if(!body||!targetArea||!totalQty){return;}
   var keys=Object.keys(HONSEN_AREAS);
@@ -833,6 +850,44 @@ function renderHonsen(targetArea){
   }).join('');
 }
 
+function computeHonsenEstimate(targetArea,totalQty,qps){
+  var body=document.getElementById('honsen-estimate-body');
+  if(!body||!targetArea||!totalQty){return;}
+  var keys=Object.keys(HONSEN_AREAS);
+  var sorted=keys.slice().sort(function(a,b){return Math.abs(HONSEN_AREAS[a]-targetArea)-Math.abs(HONSEN_AREAS[b]-targetArea);});
+  var nearestSz=sorted[0];
+  var tiers=HONSEN_PRICING[nearestSz]||[];
+  var defaultTier=getHonsenPpp(nearestSz,qps)||tiers[0];
+  if(!defaultTier){body.innerHTML='<div class="dempty">No data</div>';return;}
+  var ranges=['1,000–5,000','5,001–10,001','10,001–50,000','50,001–100,000','>100,000'];
+  var mn="font-family:'JetBrains Mono',monospace;font-weight:500";
+  var selStyle="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:3px 5px;color:var(--t);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;margin-top:2px";
+  var opts=tiers.map(function(t,i){return '<option value="'+t.ppp+'" '+(t===defaultTier?'selected':'')+'>'+ranges[i]+'</option>';}).join('');
+  var ppp=defaultTier.ppp;var estTotal=ppp*totalQty;
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:8px">'
+    +'<div><div style="font-size:10px;color:var(--m)">Nearest size</div><div style="'+mn+'">'+nearestSz+'mm</div></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">QTY/SKU lookup</div><div style="'+mn+'">'+qps.toLocaleString()+'</div></div>'
+    +'<div style="grid-column:1/-1"><div style="font-size:10px;color:var(--m)">Qty range matched <span style="color:var(--dim)">(editable)</span></div>'
+    +'<select id="honsen-range-sel" style="'+selStyle+'" onchange="recalcHonsenEstimate('+totalQty+')">'
+    +opts+'</select></div>'
+    +'<div><div style="font-size:10px;color:var(--m)">Price per piece</div><div id="honsen-est-ppp" style="'+mn+';color:var(--pnk)">S$'+ppp.toFixed(5)+'</div></div>'
+    +'</div>'
+    +'<div style="padding-top:8px;border-top:1px solid var(--b)">'
+    +'<div style="font-size:10px;color:var(--m);margin-bottom:3px">Est. total ('+totalQty.toLocaleString()+')</div>'
+    +'<div id="honsen-est-total" style="font-size:18px;font-weight:600;'+mn+';color:var(--pnk)">S$'+Math.round(estTotal).toLocaleString()+'</div>'
+    +'<div id="honsen-est-calc" style="font-size:10px;color:var(--dim);margin-top:2px">S$'+ppp.toFixed(5)+' × '+totalQty.toLocaleString()+'</div>'
+    +'</div>';
+}
+
+function recalcHonsenEstimate(totalQty){
+  var sel=document.getElementById('honsen-range-sel');if(!sel)return;
+  var ppp=parseFloat(sel.value)||0;
+  var estTotal=ppp*totalQty;
+  var pppEl=document.getElementById('honsen-est-ppp');if(pppEl)pppEl.textContent='S$'+ppp.toFixed(5);
+  var totEl=document.getElementById('honsen-est-total');if(totEl)totEl.textContent='S$'+Math.round(estTotal).toLocaleString();
+  var calcEl=document.getElementById('honsen-est-calc');if(calcEl)calcEl.textContent='S$'+ppp.toFixed(5)+' × '+totalQty.toLocaleString();
+}
 setLang('en');
 if(window.location.search.includes('code=')||window.location.search.includes('error=')){initApp();}
 else{window.addEventListener('load',function(){initApp();});}
